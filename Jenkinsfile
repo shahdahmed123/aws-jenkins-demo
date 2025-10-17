@@ -7,9 +7,8 @@ pipeline {
     }
 
     environment {
-        // Use Jenkins AWS credentials (ID = aws-creds)
-        AWS_ACCESS_KEY_ID     = credentials('aws-creds').AWS_ACCESS_KEY_ID
-        AWS_SECRET_ACCESS_KEY = credentials('aws-creds').AWS_SECRET_ACCESS_KEY
+        // استخدمي Jenkins credentials مباشرة
+        AWS_CREDS = credentials('aws-creds')
     }
 
     stages {
@@ -26,8 +25,8 @@ pipeline {
                     echo "🚀 Running AWS script using Jenkins credentials..."
                     sh '''
                         chmod +x aws_script.sh
-                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        export AWS_ACCESS_KEY_ID=$(echo $AWS_CREDS | cut -d: -f1)
+                        export AWS_SECRET_ACCESS_KEY=$(echo $AWS_CREDS | cut -d: -f2)
                         export AWS_DEFAULT_REGION=us-east-1
                         ./aws_script.sh
                     '''
