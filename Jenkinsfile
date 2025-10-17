@@ -2,29 +2,42 @@ pipeline {
     agent any
 
     triggers {
-        cron('H * * * *') // runs every 1 hour
+        // cron job runs every 1 hour
+        cron('H * * * *')
     }
 
     environment {
-        AWS_DEFAULT_REGION = 'us-east-1'
+        // Use Jenkins AWS credentials (ID = aws-creds)
+        AWS_CREDS = credentials('aws-creds')
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/USERNAME/REPO.git'
+                // Get the repo from GitHub
+                git branch: 'main', url: 'https://github.com/shahdahmed123/aws-jenkins-demo.git'
             }
         }
 
-        stage('Run AWS Action') {
+        stage('Run AWS Script') {
             steps {
-                withAWS(credentials: 'aws-creds') {
+                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                     sh '''
-                        chmod +x run_aws_action.sh
-                        ./run_aws_action.sh
+                        echo "Running AWS script using Jenkins credentials..."
+                        chmod +x aws_script.sh
+                        ./aws_script.sh
                     '''
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ AWS job completed successfully!'
+        }
+        failure {
+            echo '❌ AWS job failed!'
         }
     }
 }
