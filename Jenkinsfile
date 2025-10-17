@@ -6,11 +6,6 @@ pipeline {
         cron('H * * * *')
     }
 
-    environment {
-        // استخدمي Jenkins credentials مباشرة
-        AWS_CREDS = credentials('aws-creds')
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
@@ -21,13 +16,11 @@ pipeline {
 
         stage('Run AWS Script') {
             steps {
-                script {
-                    echo "🚀 Running AWS script using Jenkins credentials..."
+                echo "🚀 Running AWS script using Jenkins AWS credentials..."
+                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                     sh '''
+                        echo "🔐 AWS credentials loaded successfully"
                         chmod +x aws_script.sh
-                        export AWS_ACCESS_KEY_ID=$(echo $AWS_CREDS | cut -d: -f1)
-                        export AWS_SECRET_ACCESS_KEY=$(echo $AWS_CREDS | cut -d: -f2)
-                        export AWS_DEFAULT_REGION=us-east-1
                         ./aws_script.sh
                     '''
                 }
