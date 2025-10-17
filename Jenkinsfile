@@ -8,23 +8,27 @@ pipeline {
 
     environment {
         // Use Jenkins AWS credentials (ID = aws-creds)
-        AWS_CREDS = credentials('aws-creds')
+        AWS_ACCESS_KEY_ID     = credentials('aws-creds').AWS_ACCESS_KEY_ID
+        AWS_SECRET_ACCESS_KEY = credentials('aws-creds').AWS_SECRET_ACCESS_KEY
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                // Get the repo from GitHub
+                echo "📦 Checking out GitHub repository..."
                 git branch: 'main', url: 'https://github.com/shahdahmed123/aws-jenkins-demo.git'
             }
         }
 
         stage('Run AWS Script') {
             steps {
-                withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                script {
+                    echo "🚀 Running AWS script using Jenkins credentials..."
                     sh '''
-                        echo "Running AWS script using Jenkins credentials..."
                         chmod +x aws_script.sh
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        export AWS_DEFAULT_REGION=us-east-1
                         ./aws_script.sh
                     '''
                 }
